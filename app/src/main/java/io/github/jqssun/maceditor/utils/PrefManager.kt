@@ -1,0 +1,39 @@
+package io.github.jqssun.maceditor.utils
+
+import android.content.SharedPreferences
+import io.github.jqssun.maceditor.BuildConfig
+import io.github.libxposed.service.XposedService
+import io.github.libxposed.service.XposedServiceHelper
+
+class PrefManager {
+    companion object {
+        private var prefs: SharedPreferences? = null
+
+        fun loadPrefs() {
+            XposedServiceHelper.registerListener(object : XposedServiceHelper.OnServiceListener {
+                override fun onServiceBind(service: XposedService) {
+                    XposedChecker.flagAsEnabled()
+                    prefs = service.getRemotePreferences(BuildConfig.APPLICATION_ID)
+                    markTileRevealAsDone()
+                }
+
+                override fun onServiceDied(service: XposedService) {}
+            })
+        }
+
+        fun isHookOn(): Boolean {
+            if (!XposedChecker.isEnabled()) return false
+            return prefs?.getBoolean("hookActive", false) ?: false
+        }
+
+        fun toggleHookState() {
+            val p = prefs ?: return
+            if (!XposedChecker.isEnabled()) return
+            p.edit().putBoolean("hookActive", !isHookOn()).apply()
+        }
+
+        private fun markTileRevealAsDone() {
+            prefs?.edit()?.putBoolean("tileRevealDone", true)?.apply()
+        }
+    }
+}
