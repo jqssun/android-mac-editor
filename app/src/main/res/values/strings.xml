@@ -2,8 +2,6 @@
 <resources>
     <string name="app_name">MAC Editor</string>
     <string name="xposed_description">Customize MAC address.</string>
-    <string name="tile_label">Override randomized MAC</string>
-
     <string name="status_activated">Module Enabled</string>
     <string name="status_not_activated">Module Disabled</string>
     <string name="status_detail_not_activated">Preferences will not load until enabled after reboot.</string>
@@ -14,14 +12,15 @@
     <string name="hook_toggle_desc">\"Use randomized MAC\" must be selected in \"Privacy\" under \"Network details\" in Settings</string>
     <string name="force_mac_randomization_label">Force enable MAC randomization</string>
     <string name="force_mac_randomization_desc">Force support for randomization and show \"Privacy\" section in \"Network details\"</string>
-    <string name="device_mac">Device MAC</string>
+    <string name="device_mac">System MAC</string>
     <string name="current_mac">Active MAC</string>
     <string name="new_mac">Standby MAC</string>
     <string name="mac_not_set">Unknown</string>
     <string name="btn_generate_mac">Generate Random MAC</string>
     <string name="btn_set_mac">Apply MAC Address</string>
 
-    <string name="mac_set_success">MAC saved. Reboot to apply changes.</string>
+    <string name="mac_set_success">MAC saved. Reconnect to apply changes.</string>
+    <string name="open_wifi_settings">Open</string>
     <string name="error_bad_length">Error: MAC address must be 48 bits long (e.g. 00:11:22:AA:BB:CC).</string>
     <string name="error_all_zeros">Error: MAC address must not be all zeros.</string>
     <string name="error_odd_first_octet">Error: MAC address must have an even first octet.</string>

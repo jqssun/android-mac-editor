@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.provider.Settings
 import android.text.InputFilter
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -140,7 +141,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun _applyMac() {
         sendBroadcast(Intent(WifiServiceHooker.ACTION_APPLY_MAC))
-        Snackbar.make(binding.root, R.string.mac_set_success, Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(binding.root, R.string.mac_set_success, Snackbar.LENGTH_LONG)
+            .setAction(R.string.open_wifi_settings) {
+                startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
+            }
+            .show()
     }
 
     private fun _showError(msg: String) {

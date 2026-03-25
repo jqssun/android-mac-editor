@@ -29,10 +29,6 @@ class WifiServiceHooker {
         private var lastIfaceName: String? = null
         private var receiverRegistered = false
 
-        // bypass flag
-        @Volatile
-        var bypass = false
-
         @SuppressLint("PrivateApi")
         fun hook(param: SystemServerStartingParam, module: XposedModule) {
             this.module = module
@@ -91,13 +87,10 @@ class WifiServiceHooker {
             if (mac.isEmpty()) return
 
             try {
-                bypass = true
                 method.invoke(hal, iface, MacAddress.fromString(mac))
                 module?.log(Log.INFO, TAG, "Directly applied MAC: $mac on $iface")
             } catch (e: Exception) {
                 module?.log(Log.ERROR, TAG, "Failed to directly apply MAC: $e")
-            } finally {
-                bypass = false
             }
         }
 
@@ -115,8 +108,6 @@ class WifiServiceHooker {
         }
 
         class MacAddrHooker : XposedInterface.Hooker {
-            private var appliedVersion = -1L
-
             override fun intercept(chain: XposedInterface.Chain): Any? {
                 val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
                 val hookActive = prefs?.getBoolean("hookActive", false) ?: false
@@ -124,32 +115,22 @@ class WifiServiceHooker {
                 if (!hookActive) return chain.proceed()
 
                 // cache HAL instance and iface
-                if (halInstance == null) {
-                    halInstance = chain.thisObject
-                    lastIfaceName = chain.getArg(0) as? String
-                    _registerApplyReceiver()
-                }
+                halInstance = chain.thisObject
                 lastIfaceName = chain.getArg(0) as? String
+                _registerApplyReceiver()
 
                 // broadcast the system-assigned MAC to the app
                 (chain.getArg(1) as? MacAddress)?.let { _broadcastDeviceMac(it) }
 
-                // bypass flag: direct call from our receiver, let it through
-                if (bypass) return chain.proceed()
-
                 val customMac = prefs?.getString("customMac", "") ?: ""
-                val macVersion = prefs?.getLong("macVersion", 0L) ?: 0L
-
-                if (customMac.isNotEmpty() && macVersion != appliedVersion) {
-                    appliedVersion = macVersion
+                if (customMac.isNotEmpty()) {
                     val args = chain.args.toTypedArray()
                     args[1] = MacAddress.fromString(customMac)
-                    module?.log(Log.INFO, TAG, "Applying custom MAC: $customMac on ${chain.getArg(0)}")
+                    module?.log(Log.INFO, TAG, "Replacing MAC with $customMac on ${chain.getArg(0)}")
                     return chain.proceed(args)
-                } else {
-                    module?.log(Log.INFO, TAG, "Blocked MAC change to ${chain.getArg(1)} on ${chain.getArg(0)}")
-                    return true
                 }
+
+                return chain.proceed()
             }
         }
     }

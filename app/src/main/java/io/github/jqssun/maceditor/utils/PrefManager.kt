@@ -20,7 +20,6 @@ class PrefManager {
                 override fun onServiceBind(service: XposedService) {
                     XposedChecker.flagAsEnabled()
                     prefs = service.getRemotePreferences(BuildConfig.APPLICATION_ID)
-                    _markTileRevealAsDone()
                     onReady?.invoke()
                 }
 
@@ -41,11 +40,7 @@ class PrefManager {
         }
 
         fun setCustomMac(mac: String) {
-            val version = (prefs?.getLong("macVersion", 0L) ?: 0L) + 1
-            prefs?.edit()
-                ?.putString("customMac", mac)
-                ?.putLong("macVersion", version)
-                ?.apply()
+            prefs?.edit()?.putString("customMac", mac)?.apply()
         }
 
         fun isForceShowMacRandomization(): Boolean {
@@ -54,10 +49,6 @@ class PrefManager {
 
         fun setForceShowMacRandomization(on: Boolean) {
             prefs?.edit()?.putBoolean("forceShowMacRandomization", on)?.apply()
-        }
-
-        private fun _markTileRevealAsDone() {
-            prefs?.edit()?.putBoolean("tileRevealDone", true)?.apply()
         }
     }
 }
