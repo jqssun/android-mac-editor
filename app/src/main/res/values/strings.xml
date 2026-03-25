@@ -21,7 +21,7 @@
     <string name="btn_set_mac">Apply MAC Address</string>
 
     <string name="mac_set_success">Active MAC updated successfully.</string>
-    <string name="error_bad_length">Error: MAC address must be 17 characters long (e.g. 02:00:00:00:00:00).</string>
+    <string name="error_bad_length">Error: MAC address must be 48 bits long (e.g. 00:11:22:AA:BB:CC).</string>
     <string name="error_all_zeros">Error: MAC address must not be all zeros.</string>
     <string name="error_odd_first_octet">Error: MAC address must have an even first octet.</string>
 

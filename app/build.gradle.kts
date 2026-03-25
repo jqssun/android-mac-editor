@@ -15,7 +15,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 31
+        minSdk = 29
         targetSdk = 36
         versionCode = 1
         versionName = "0.0.1"
@@ -28,12 +28,12 @@ android {
     }
 
     signingConfigs {
-        if (localProps.containsKey("signing.storeFile")) {
+        if (localProps.containsKey("storeFile")) {
             create("release") {
-                storeFile = file(localProps["signing.storeFile"] as String)
-                storePassword = localProps["signing.storePassword"] as String
-                keyAlias = localProps["signing.keyAlias"] as String
-                keyPassword = localProps["signing.keyPassword"] as String
+                storeFile = file(localProps["storeFile"] as String)
+                storePassword = localProps["storePassword"] as String
+                keyAlias = localProps["keyAlias"] as String
+                keyPassword = localProps["keyPassword"] as String
             }
         }
     }
