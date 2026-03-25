@@ -3,7 +3,6 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.agp.app)
     alias(libs.plugins.kotlin)
-    alias(libs.plugins.compose.compiler)
 }
 
 val localProps = Properties().apply {
@@ -25,7 +24,6 @@ android {
 
     buildFeatures {
         viewBinding = true
-        compose = true
         buildConfig = true
     }
 
@@ -76,7 +74,7 @@ android {
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
-    implementation(libs.markdownview)
+    implementation(libs.material)
     implementation(libs.libxposed.service)
     compileOnly(libs.libxposed.api)
 }

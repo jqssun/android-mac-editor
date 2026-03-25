@@ -2,13 +2,13 @@ package io.github.jqssun.maceditor.hookers
 
 import android.annotation.SuppressLint
 import android.util.ArraySet
-import android.util.Log
 import io.github.jqssun.maceditor.BuildConfig
 import io.github.jqssun.maceditor.TAG
 import io.github.jqssun.maceditor.utils.XposedHelpers
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface.PackageLoadedParam
+import io.github.libxposed.api.annotations.XposedHooker
 
 class SystemUIHooker {
     companion object {
@@ -34,6 +34,7 @@ class SystemUIHooker {
             )
         }
 
+        @XposedHooker
         class TileSetterHooker : XposedInterface.Hooker {
             companion object {
                 @JvmStatic
@@ -50,12 +51,13 @@ class SystemUIHooker {
                             tileHostClass.getDeclaredMethod("addTile", String::class.java, Int::class.java)
                                 .invoke(tileHost, tileId, -1)
                         }
-                        module?.log(Log.INFO, TAG, "Tile added to quick settings panel.", null)
+                        @Suppress("DEPRECATION") module?.log("$TAG: Tile added to quick settings panel.")
                     }
                 }
             }
         }
 
+        @XposedHooker
         class TileRevealAnimHooker : XposedInterface.Hooker {
             companion object {
                 @JvmStatic
@@ -68,8 +70,7 @@ class SystemUIHooker {
                         ) as ArraySet<String>
                         tilesToReveal.add(tileId)
                         tileRevealed = true
-                        module?.log(Log.INFO, TAG, "Tile quick settings panel animation played. " +
-                                "MAC Editor will not hook SystemUI on next reboot.", null)
+                        @Suppress("DEPRECATION") module?.log("$TAG: Tile quick settings panel animation played. MAC Editor will not hook SystemUI on next reboot.")
                     }
                 }
             }

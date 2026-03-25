@@ -1,7 +1,7 @@
 package io.github.jqssun.maceditor
 
-import android.util.Log
 import io.github.jqssun.maceditor.hookers.SystemUIHooker
+import io.github.jqssun.maceditor.hookers.WifiConfigHooker
 import io.github.jqssun.maceditor.hookers.WifiServiceHooker
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
@@ -13,6 +13,7 @@ const val TAG = "MACEditor"
 
 private lateinit var module: MACEditor
 
+@Suppress("DEPRECATION")
 class MACEditor(base: XposedInterface, param: ModuleLoadedParam) : XposedModule(base, param) {
     init {
         module = this
@@ -22,7 +23,12 @@ class MACEditor(base: XposedInterface, param: ModuleLoadedParam) : XposedModule(
         try {
             WifiServiceHooker.hook(param, this)
         } catch (e: Exception) {
-            log(Log.ERROR, TAG, "ERROR: $e", null)
+            log("$TAG: ERROR: $e")
+        }
+        try {
+            WifiConfigHooker.hook(param, this)
+        } catch (e: Exception) {
+            log("$TAG: Failed to hook WiFi config resources: $e")
         }
     }
 
@@ -32,10 +38,10 @@ class MACEditor(base: XposedInterface, param: ModuleLoadedParam) : XposedModule(
                 val prefs = getRemotePreferences(BuildConfig.APPLICATION_ID)
                 if (!prefs.getBoolean("tileRevealDone", false)) {
                     try {
-                        log(Log.INFO, TAG, "Hooking System UI to add and reveal quick settings tile.", null)
+                        log("$TAG: Hooking System UI to show quick settings tile.")
                         SystemUIHooker.hook(param, this)
                     } catch (e: Exception) {
-                        log(Log.ERROR, TAG, "ERROR: $e", null)
+                        log("$TAG: ERROR: $e")
                     }
                 }
             }

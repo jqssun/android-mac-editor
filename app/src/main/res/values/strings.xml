@@ -2,5 +2,28 @@
 <resources>
     <string name="app_name">MAC Editor</string>
     <string name="xposed_description">Customize MAC address.</string>
-    <string name="tile_label">Override MAC Randomization</string>
+    <string name="tile_label">Override randomized MAC</string>
+
+    <string name="status_activated">Module Enabled</string>
+    <string name="status_not_activated">Module Disabled</string>
+    <string name="status_detail_not_activated">Enable this module and reboot.</string>
+    <string name="status_detail_hook_on">Override enabled: custom MAC in use</string>
+    <string name="status_detail_hook_off">Override disabled: default MAC in use</string>
+
+    <string name="hook_toggle_label">Override randomized MAC</string>
+    <string name="hook_toggle_desc">\"Use randomized MAC\" must be selected in \"Network details\"</string>
+    <string name="force_mac_randomization_label">Force enable MAC randomization</string>
+    <string name="force_mac_randomization_desc">Force support for randomization and show \"Privacy\" section in \"Network details\"</string>
+    <string name="current_mac">Active MAC</string>
+    <string name="new_mac">Standby MAC</string>
+    <string name="mac_not_set">Not set</string>
+    <string name="btn_generate_mac">Generate Random MAC</string>
+    <string name="btn_set_mac">Apply MAC Address</string>
+
+    <string name="mac_set_success">Active MAC updated successfully.</string>
+    <string name="error_bad_length">Error: MAC address must be 17 characters long (e.g. 02:00:00:00:00:00).</string>
+    <string name="error_all_zeros">Error: MAC address must not be all zeros.</string>
+    <string name="error_odd_first_octet">Error: MAC address must have an even first octet.</string>
+
+    <string name="footer_note">Requires hardware driver support for MAC randomization. Reboot required for \"%s\".</string>
 </resources>

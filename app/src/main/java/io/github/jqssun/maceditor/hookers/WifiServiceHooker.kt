@@ -2,12 +2,12 @@ package io.github.jqssun.maceditor.hookers
 
 import android.annotation.SuppressLint
 import android.net.MacAddress
-import android.util.Log
 import io.github.jqssun.maceditor.BuildConfig
 import io.github.jqssun.maceditor.TAG
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface.SystemServerLoadedParam
+import io.github.libxposed.api.annotations.XposedHooker
 
 class WifiServiceHooker {
     companion object {
@@ -24,6 +24,7 @@ class WifiServiceHooker {
             )
         }
 
+        @XposedHooker
         class SystemServiceManagerHooker : XposedInterface.Hooker {
             companion object {
                 @JvmStatic
@@ -45,6 +46,7 @@ class WifiServiceHooker {
             }
         }
 
+        @XposedHooker
         class MacAddrSetGenericHooker : XposedInterface.Hooker {
             companion object {
                 @JvmStatic
@@ -53,15 +55,21 @@ class WifiServiceHooker {
                     val isHookActive = prefs?.getBoolean("hookActive", false) ?: false
 
                     if (isHookActive) {
-                        module?.log(Log.INFO, TAG, "Blocked MAC address change to ${callback.args[1]} on ${callback.args[0]}.", null)
-                        callback.returnAndSkip(true)
+                        val customMac = prefs?.getString("customMac", "") ?: ""
+                        if (customMac.isNotEmpty()) {
+                            @Suppress("DEPRECATION") module?.log("$TAG: Replacing MAC with custom: $customMac on ${callback.args[0]}")
+                            callback.args[1] = MacAddress.fromString(customMac)
+                        } else {
+                            @Suppress("DEPRECATION") module?.log("$TAG: Blocked MAC address change to ${callback.args[1]} on ${callback.args[0]}.")
+                            callback.returnAndSkip(true)
+                        }
                     }
                 }
 
                 @JvmStatic
                 fun after(callback: XposedInterface.AfterHookCallback) {
                     if (!callback.isSkipped) {
-                        module?.log(Log.INFO, TAG, "Allowed MAC address change to ${callback.args[1]} on ${callback.args[0]}.", null)
+                        @Suppress("DEPRECATION") module?.log("$TAG: MAC address set to ${callback.args[1]} on ${callback.args[0]}.")
                     }
                 }
             }
