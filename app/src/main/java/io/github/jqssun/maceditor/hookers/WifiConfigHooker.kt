@@ -1,12 +1,12 @@
 package io.github.jqssun.maceditor.hookers
 
 import android.content.res.Resources
+import android.util.Log
 import io.github.jqssun.maceditor.BuildConfig
 import io.github.jqssun.maceditor.TAG
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
-import io.github.libxposed.api.XposedModuleInterface.SystemServerLoadedParam
-import io.github.libxposed.api.annotations.XposedHooker
+import io.github.libxposed.api.XposedModuleInterface.SystemServerStartingParam
 
 class WifiConfigHooker {
     companion object {
@@ -18,34 +18,30 @@ class WifiConfigHooker {
             "config_wifi_ap_mac_randomization_supported"
         )
 
-        fun hook(param: SystemServerLoadedParam, module: XposedModule) {
+        fun hook(param: SystemServerStartingParam, module: XposedModule) {
             this.module = module
             module.hook(
-                Resources::class.java.getDeclaredMethod("getBoolean", Int::class.javaPrimitiveType),
-                ResourceBoolHooker::class.java
-            )
+                Resources::class.java.getDeclaredMethod("getBoolean", Int::class.javaPrimitiveType)
+            ).intercept(ResourceBoolHooker())
         }
 
-        @XposedHooker
         class ResourceBoolHooker : XposedInterface.Hooker {
-            companion object {
-                @JvmStatic
-                fun after(callback: XposedInterface.AfterHookCallback) {
-                    val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
-                    if (prefs?.getBoolean("forceShowMacRandomization", false) != true) return
+            override fun intercept(chain: XposedInterface.Chain): Any? {
+                val result = chain.proceed()
+                val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
+                if (prefs?.getBoolean("forceShowMacRandomization", false) != true) return result
 
-                    val res = callback.thisObject as? Resources ?: return
-                    val id = callback.args[0] as Int
-                    try {
-                        val name = res.getResourceEntryName(id)
-                        if (name in TARGET_KEYS) {
-                            callback.result = true
-                            @Suppress("DEPRECATION") module?.log("$TAG: Forced $name to true")
-                        }
-                    } catch (_: Resources.NotFoundException) {
-                        // not our resource, ignore
+                val res = chain.thisObject as? Resources ?: return result
+                val id = chain.getArg(0) as Int
+                try {
+                    val name = res.getResourceEntryName(id)
+                    if (name in TARGET_KEYS) {
+                        module?.log(Log.INFO, TAG, "Forced $name to true")
+                        return true
                     }
+                } catch (_: Resources.NotFoundException) {
                 }
+                return result
             }
         }
     }

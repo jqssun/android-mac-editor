@@ -8,13 +8,20 @@ import io.github.libxposed.service.XposedServiceHelper
 class PrefManager {
     companion object {
         private var prefs: SharedPreferences? = null
+        private var loaded = false
 
-        fun loadPrefs() {
+        fun loadPrefs(onReady: (() -> Unit)? = null) {
+            if (loaded) {
+                if (XposedChecker.isEnabled()) onReady?.invoke()
+                return
+            }
+            loaded = true
             XposedServiceHelper.registerListener(object : XposedServiceHelper.OnServiceListener {
                 override fun onServiceBind(service: XposedService) {
                     XposedChecker.flagAsEnabled()
                     prefs = service.getRemotePreferences(BuildConfig.APPLICATION_ID)
                     _markTileRevealAsDone()
+                    onReady?.invoke()
                 }
 
                 override fun onServiceDied(service: XposedService) {}
@@ -22,14 +29,11 @@ class PrefManager {
         }
 
         fun isHookOn(): Boolean {
-            if (!XposedChecker.isEnabled()) return false
             return prefs?.getBoolean("hookActive", false) ?: false
         }
 
-        fun toggleHookState() {
-            val p = prefs ?: return
-            if (!XposedChecker.isEnabled()) return
-            p.edit().putBoolean("hookActive", !isHookOn()).apply()
+        fun setHookState(on: Boolean) {
+            prefs?.edit()?.putBoolean("hookActive", on)?.apply()
         }
 
         fun getCustomMac(): String {
@@ -37,7 +41,11 @@ class PrefManager {
         }
 
         fun setCustomMac(mac: String) {
-            prefs?.edit()?.putString("customMac", mac)?.apply()
+            val version = (prefs?.getLong("macVersion", 0L) ?: 0L) + 1
+            prefs?.edit()
+                ?.putString("customMac", mac)
+                ?.putLong("macVersion", version)
+                ?.apply()
         }
 
         fun isForceShowMacRandomization(): Boolean {

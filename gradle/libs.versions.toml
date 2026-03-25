@@ -1,7 +1,7 @@
 [versions]
 agp = "8.13.2"
 kotlin = "2.2.10"
-xposed-api = "88cc078"
+xposed-api = "101.0.0"
 xposed-service = "101.0.0"
 appcompat = "1.6.1"
 constraintlayout = "2.1.4"

@@ -2,13 +2,13 @@ package io.github.jqssun.maceditor.hookers
 
 import android.annotation.SuppressLint
 import android.util.ArraySet
+import android.util.Log
 import io.github.jqssun.maceditor.BuildConfig
 import io.github.jqssun.maceditor.TAG
 import io.github.jqssun.maceditor.utils.XposedHelpers
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface.PackageLoadedParam
-import io.github.libxposed.api.annotations.XposedHooker
 
 class SystemUIHooker {
     companion object {
@@ -23,56 +23,46 @@ class SystemUIHooker {
 
             module.hook(
                 param.defaultClassLoader.loadClass("com.android.systemui.qs.QSPanelControllerBase")
-                    .getDeclaredMethod("setTiles"),
-                TileSetterHooker::class.java
-            )
+                    .getDeclaredMethod("setTiles")
+            ).intercept(TileSetterHooker())
 
             module.hook(
                 param.defaultClassLoader.loadClass("com.android.systemui.qs.QSTileRevealController\$1")
-                    .getDeclaredMethod("run"),
-                TileRevealAnimHooker::class.java
-            )
+                    .getDeclaredMethod("run")
+            ).intercept(TileRevealAnimHooker())
         }
 
-        @XposedHooker
         class TileSetterHooker : XposedInterface.Hooker {
-            companion object {
-                @JvmStatic
-                fun before(callback: XposedInterface.BeforeHookCallback) {
-                    if (!tileRevealed) {
-                        val tileHost = XposedHelpers.getObjectField(callback.thisObject, "mHost")!!
-                        val tileHostClass = tileHost.javaClass
-
-                        // handle non-aosp implementation
-                        try {
-                            tileHostClass.getDeclaredMethod("addTile", Int::class.java, String::class.java)
-                                .invoke(tileHost, -1, tileId)
-                        } catch (t: Throwable) {
-                            tileHostClass.getDeclaredMethod("addTile", String::class.java, Int::class.java)
-                                .invoke(tileHost, tileId, -1)
-                        }
-                        @Suppress("DEPRECATION") module?.log("$TAG: Tile added to quick settings panel.")
+            override fun intercept(chain: XposedInterface.Chain): Any? {
+                if (!tileRevealed) {
+                    val tileHost = XposedHelpers.getObjectField(chain.thisObject, "mHost")!!
+                    val tileHostClass = tileHost.javaClass
+                    try {
+                        tileHostClass.getDeclaredMethod("addTile", Int::class.java, String::class.java)
+                            .invoke(tileHost, -1, tileId)
+                    } catch (_: Throwable) {
+                        tileHostClass.getDeclaredMethod("addTile", String::class.java, Int::class.java)
+                            .invoke(tileHost, tileId, -1)
                     }
+                    module?.log(Log.INFO, TAG, "Tile added to quick settings panel.")
                 }
+                return chain.proceed()
             }
         }
 
-        @XposedHooker
         class TileRevealAnimHooker : XposedInterface.Hooker {
-            companion object {
-                @JvmStatic
-                fun before(callback: XposedInterface.BeforeHookCallback) {
-                    if (!tileRevealed) {
-                        @Suppress("UNCHECKED_CAST")
-                        val tilesToReveal = XposedHelpers.getObjectField(
-                            XposedHelpers.getSurroundingThis(callback.thisObject),
-                            "mTilesToReveal"
-                        ) as ArraySet<String>
-                        tilesToReveal.add(tileId)
-                        tileRevealed = true
-                        @Suppress("DEPRECATION") module?.log("$TAG: Tile quick settings panel animation played. MAC Editor will not hook SystemUI on next reboot.")
-                    }
+            override fun intercept(chain: XposedInterface.Chain): Any? {
+                if (!tileRevealed) {
+                    @Suppress("UNCHECKED_CAST")
+                    val tilesToReveal = XposedHelpers.getObjectField(
+                        XposedHelpers.getSurroundingThis(chain.thisObject),
+                        "mTilesToReveal"
+                    ) as ArraySet<String>
+                    tilesToReveal.add(tileId)
+                    tileRevealed = true
+                    module?.log(Log.INFO, TAG, "Tile quick settings panel animation played. MAC Editor will not hook SystemUI on next reboot.")
                 }
+                return chain.proceed()
             }
         }
     }

@@ -17,7 +17,7 @@ class QuickTile: TileService() {
 
     override fun onClick() {
         super.onClick()
-        PrefManager.toggleHookState()
+        PrefManager.setHookState(!PrefManager.isHookOn())
         setButtonState()
     }
 
