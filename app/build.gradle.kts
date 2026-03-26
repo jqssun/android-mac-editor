@@ -17,8 +17,8 @@ android {
     defaultConfig {
         minSdk = 29
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.0.4"
+        versionCode = 5
+        versionName = "0.0.5"
         applicationId = "io.github.jqssun.maceditor"
     }
 

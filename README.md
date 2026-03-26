@@ -1,6 +1,7 @@
 # MAC Editor for Android
 
 [![Stars](https://img.shields.io/github/stars/jqssun/android-mac-editor)](https://github.com/jqssun/android-mac-editor/stargazers)
+[![LSPosed](https://img.shields.io/github/downloads/Xposed-Modules-Repo/io.github.jqssun.maceditor/total?label=LSPosed&logo=Android&style=flat&labelColor=F48FB1&logoColor=ffffff)](https://github.com/Xposed-Modules-Repo/io.github.jqssun.maceditor/releases)
 [![GitHub](https://img.shields.io/github/downloads/jqssun/android-mac-editor/total?label=GitHub&logo=GitHub)](https://github.com/jqssun/android-mac-editor/releases)
 [![release](https://img.shields.io/github/v/release/jqssun/android-mac-editor)](https://github.com/jqssun/android-mac-editor/releases)
 [![build](https://img.shields.io/github/actions/workflow/status/jqssun/android-mac-editor/apk.yml)](https://github.com/jqssun/android-mac-editor/actions/workflows/apk.yml)

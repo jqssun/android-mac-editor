@@ -9,13 +9,13 @@ env:
 on:
   push:
     branches:
-      - 'release/**'
+      - "release/**"
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
   workflow_dispatch:
     inputs:
       version:
-        description: 'v*.*.*'
+        description: "v*.*.*"
         required: true
         type: string
 
@@ -43,9 +43,9 @@ jobs:
       - name: Use JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '21'
-          cache: 'gradle'
+          distribution: "zulu"
+          java-version: "21"
+          cache: "gradle"
 
       - name: Build
         run: |
@@ -63,3 +63,31 @@ jobs:
           tag_name: v${{ env.version }}
           files: |
             ${{ env.main_project_module }}/build/outputs/apk/release/app-release.apk
+
+      - name: Publish (Xposed)
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.PAT }}
+          repository: ${{ env.target_owner }}/${{ env.target_repo }}
+          name: v${{ env.version }}
+          tag_name: v${{ env.version }}
+          files: |
+            ${{ env.main_project_module }}/build/outputs/apk/release/app-release.apk
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.target_owner }}/${{ env.target_repo }}
+          path: ${{ env.target_path }}
+          token: ${{ secrets.PAT }}
+
+      - name: Sync
+        run: |
+          cd ${{ env.target_path }}
+          cp ../README.md ../LICENSE .
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          git add LICENSE
+          git commit --amend --no-edit
+          git push --force

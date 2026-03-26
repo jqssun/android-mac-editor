@@ -10,8 +10,9 @@ object MacUtils {
 
     fun validate(mac: String): ValidationResult {
         if (mac.length != 17) return ValidationResult.BAD_LENGTH
+        if (!mac.matches(Regex("^[0-9A-F]{2}(:[0-9A-F]{2}){5}$"))) return ValidationResult.BAD_LENGTH
         if (mac == "00:00:00:00:00:00") return ValidationResult.ALL_ZEROS
-        val firstOctet = mac.substring(0, 2).toIntOrNull(16) ?: return ValidationResult.BAD_LENGTH
+        val firstOctet = mac.substring(0, 2).toInt(16)
         if (firstOctet % 2 != 0) return ValidationResult.ODD_FIRST_OCTET
         return ValidationResult.VALID
     }
@@ -19,8 +20,7 @@ object MacUtils {
     fun generateRandom(): String {
         val octets = ByteArray(6).also { Random.nextBytes(it) }
         // ensure first octet is even (unicast) and non-zero
-        var first = octets[0].toInt() and 0xFF
-        if (first % 2 != 0) first++
+        var first = octets[0].toInt() and 0xFE
         if (first == 0) first = 2
         octets[0] = first.toByte()
         // ensure last octet non-zero to avoid all-zeros
