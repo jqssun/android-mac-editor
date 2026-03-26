@@ -29,7 +29,7 @@ class WifiConfigHooker {
             override fun intercept(chain: XposedInterface.Chain): Any? {
                 val result = chain.proceed()
                 val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
-                if (prefs?.getBoolean("forceShowMacRandomization", false) != true) return result
+                if (prefs?.getBoolean("forceShowMacRandomization", true) != true) return result
 
                 val res = chain.thisObject as? Resources ?: return result
                 val id = chain.getArg(0) as Int

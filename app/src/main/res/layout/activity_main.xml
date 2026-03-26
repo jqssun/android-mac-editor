@@ -146,7 +146,7 @@
                         android:layout_gravity="center_horizontal"
                         android:paddingBottom="4dp"
                         android:text="@string/device_mac"
-                        android:textAppearance="?attr/textAppearanceBodySmall" />
+                        android:textAppearance="?attr/textAppearanceTitleMedium" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textview_device_mac"

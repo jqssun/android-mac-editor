@@ -23,9 +23,9 @@ class WifiServiceHooker {
         const val ACTION_MAC_DETECTED = "${BuildConfig.APPLICATION_ID}.ACTION_MAC_DETECTED"
         private const val RECEIVER_CLASS = "${BuildConfig.APPLICATION_ID}.MacBroadcastReceiver"
 
-        // cached HAL state
-        private var halInstance: Any? = null
-        private var halMethod: Method? = null
+        // cached WifiNative state
+        private var nativeInstance: Any? = null
+        private var nativeSetStaMethod: Method? = null
         private var lastIfaceName: String? = null
         private var receiverRegistered = false
 
@@ -40,13 +40,14 @@ class WifiServiceHooker {
                 val className = chain.getArg(0) as String
                 if (className == "com.android.server.wifi.WifiService") {
                     val cl = chain.getArg(1) as ClassLoader
-                    val halClass = cl.loadClass("com.android.server.wifi.WifiVendorHal")
-                    val setStaMethod = halClass.getDeclaredMethod("setStaMacAddress", String::class.java, MacAddress::class.java)
-                    val setApMethod = halClass.getDeclaredMethod("setApMacAddress", String::class.java, MacAddress::class.java)
-                    halMethod = setStaMethod
+                    val nativeClass = cl.loadClass("com.android.server.wifi.WifiNative")
+                    val setStaMethod = nativeClass.getDeclaredMethod("setStaMacAddress", String::class.java, MacAddress::class.java)
+                    val setApMethod = nativeClass.getDeclaredMethod("setApMacAddress", String::class.java, MacAddress::class.java)
+                    nativeSetStaMethod = setStaMethod
                     val hooker = MacAddrHooker()
                     module.hook(setStaMethod).intercept(hooker)
                     module.hook(setApMethod).intercept(hooker)
+                    module.log(Log.INFO, TAG, "Hooked WifiNative.setStaMacAddress and setApMacAddress")
                 }
                 result
             }
@@ -75,11 +76,11 @@ class WifiServiceHooker {
         }
 
         private fun _applyMacDirectly() {
-            val hal = halInstance
-            val method = halMethod
+            val native = nativeInstance
+            val method = nativeSetStaMethod
             val iface = lastIfaceName
-            if (hal == null || method == null || iface == null) {
-                module?.log(Log.WARN, TAG, "Cannot apply MAC: HAL not cached yet")
+            if (native == null || method == null || iface == null) {
+                module?.log(Log.WARN, TAG, "Cannot apply MAC: WifiNative not cached yet")
                 return
             }
             val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
@@ -87,7 +88,8 @@ class WifiServiceHooker {
             if (mac.isEmpty()) return
 
             try {
-                method.invoke(hal, iface, MacAddress.fromString(mac))
+                // calls WifiNative.setStaMacAddress which does disconnect() + HAL call
+                method.invoke(native, iface, MacAddress.fromString(mac))
                 module?.log(Log.INFO, TAG, "Directly applied MAC: $mac on $iface")
             } catch (e: Exception) {
                 module?.log(Log.ERROR, TAG, "Failed to directly apply MAC: $e")
@@ -110,12 +112,12 @@ class WifiServiceHooker {
         class MacAddrHooker : XposedInterface.Hooker {
             override fun intercept(chain: XposedInterface.Chain): Any? {
                 val prefs = module?.getRemotePreferences(BuildConfig.APPLICATION_ID)
-                val hookActive = prefs?.getBoolean("hookActive", false) ?: false
+                val hookActive = prefs?.getBoolean("hookActive", true) ?: true
 
                 if (!hookActive) return chain.proceed()
 
-                // cache HAL instance and iface
-                halInstance = chain.thisObject
+                // cache WifiNative instance and iface
+                nativeInstance = chain.thisObject
                 lastIfaceName = chain.getArg(0) as? String
                 _registerApplyReceiver()
 
@@ -129,7 +131,6 @@ class WifiServiceHooker {
                     module?.log(Log.INFO, TAG, "Replacing MAC with $customMac on ${chain.getArg(0)}")
                     return chain.proceed(args)
                 }
-
                 return chain.proceed()
             }
         }

@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private val macReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             _refreshDeviceMac()
+            _updateStatusCard()
         }
     }
 
@@ -66,15 +67,26 @@ class MainActivity : AppCompatActivity() {
         updatingUI = false
     }
 
+    private fun _isSystemServerHooked(): Boolean {
+        return getSharedPreferences(MacBroadcastReceiver.PREFS_NAME, MODE_PRIVATE)
+            .getString("deviceMac", null) != null
+    }
+
     private fun _updateStatusCard() {
         val enabled = XposedChecker.isEnabled()
-        val hookOn = enabled && PrefManager.isHookOn()
+        val hooked = enabled && _isSystemServerHooked()
+        val hookOn = hooked && PrefManager.isHookOn()
 
         when {
             !enabled -> {
                 binding.moduleStatusIcon.setImageResource(R.drawable.ic_disabled_24)
                 binding.moduleStatus.text = getString(R.string.status_not_activated)
                 binding.serviceStatus.text = getString(R.string.status_detail_not_activated)
+            }
+            !hooked -> {
+                binding.moduleStatusIcon.setImageResource(R.drawable.ic_error_24)
+                binding.moduleStatus.text = getString(R.string.status_inactive)
+                binding.serviceStatus.text = getString(R.string.status_detail_inactive)
             }
             !hookOn -> {
                 binding.moduleStatusIcon.setImageResource(R.drawable.ic_warning_24)

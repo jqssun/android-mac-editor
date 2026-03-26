@@ -28,7 +28,7 @@ class PrefManager {
         }
 
         fun isHookOn(): Boolean {
-            return prefs?.getBoolean("hookActive", false) ?: false
+            return prefs?.getBoolean("hookActive", true) ?: true
         }
 
         fun setHookState(on: Boolean) {
@@ -44,7 +44,7 @@ class PrefManager {
         }
 
         fun isForceShowMacRandomization(): Boolean {
-            return prefs?.getBoolean("forceShowMacRandomization", false) ?: false
+            return prefs?.getBoolean("forceShowMacRandomization", true) ?: true
         }
 
         fun setForceShowMacRandomization(on: Boolean) {

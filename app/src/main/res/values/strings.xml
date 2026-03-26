@@ -4,7 +4,9 @@
     <string name="xposed_description">Customize MAC address.</string>
     <string name="status_activated">Module Enabled</string>
     <string name="status_not_activated">Module Disabled</string>
-    <string name="status_detail_not_activated">Preferences will not load until enabled after reboot.</string>
+    <string name="status_inactive">Module Inactive</string>
+    <string name="status_detail_not_activated">Preferences cannot load until module is enabled after a reboot.</string>
+    <string name="status_detail_inactive">Ensure system is enabled in scope with Wi-Fi connected after a reboot.</string>
     <string name="status_detail_hook_on">Override enabled: custom MAC in use</string>
     <string name="status_detail_hook_off">Override disabled: default MAC in use</string>
 
