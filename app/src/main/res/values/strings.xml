@@ -6,7 +6,7 @@
     <string name="status_not_activated">Module Disabled</string>
     <string name="status_inactive">Module Inactive</string>
     <string name="status_detail_not_activated">Preferences cannot load until module is enabled after a reboot.</string>
-    <string name="status_detail_inactive">Ensure system is enabled in scope with Wi-Fi connected after a reboot.</string>
+    <string name="status_detail_inactive">Ensure system is enabled in scope, then apply MAC address override to activate the module.</string>
     <string name="status_detail_hook_on">Override enabled: custom MAC in use</string>
     <string name="status_detail_hook_off">Override disabled: default MAC in use</string>
 
@@ -21,7 +21,7 @@
     <string name="btn_generate_mac">Generate Random MAC</string>
     <string name="btn_set_mac">Apply MAC Address</string>
 
-    <string name="mac_set_success">MAC saved. Reconnect to apply changes.</string>
+    <string name="mac_set_success">MAC saved. Reconnect Wi-Fi to apply.</string>
     <string name="open_wifi_settings">Open</string>
     <string name="error_bad_length">Error: MAC address must be 48 bits long (e.g. 00:11:22:AA:BB:CC).</string>
     <string name="error_all_zeros">Error: MAC address must not be all zeros.</string>
