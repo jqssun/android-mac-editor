@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.text.InputFilter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import io.github.jqssun.maceditor.databinding.ActivityMainBinding
@@ -44,7 +45,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        registerReceiver(macReceiver, IntentFilter(MacBroadcastReceiver.ACTION_MAC_DETECTED), RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(
+            this,
+            macReceiver,
+            IntentFilter(MacBroadcastReceiver.ACTION_MAC_DETECTED),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         _refreshAll()
     }
 
